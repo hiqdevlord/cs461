@@ -1,0 +1,44 @@
+<p>
+  <b>Name:</b>
+  <%=h @company.name %>
+</p>
+
+<p>
+  <b>Symbol:</b>
+  <%=h @company.symbol %>
+</p>
+
+<% if @data and ! @data.empty? %>
+<table border="1">
+  <tr><th>Day</th>
+      <th>Open</th>
+      <th>High</th>
+      <th>Low</th>
+      <th>Close</th>
+      <th>Volume</th>
+      <th>OBV P</th>
+      <th>PMO P</th>
+      <th>RSI P</th>
+      <th>Stochastic %k P</th>
+      <th>MA10 P</th>
+      <td>Prediction</td></tr>
+<% @data.each_with_index do |d,i| %>
+<tr <% if(i%2==0)%> bgcolor='#66FF66' <% end %>  >
+      <td><%= d[:day] %></td>
+      <td><%= d[:open] %></td>
+      <td><%= d[:high] %></td>
+      <td><%= d[:low] %></td>
+      <td><%= d[:close] %></td>
+      <td><%= d[:volume] %></td>
+      <td><%= d[:obv_p] %></td>
+      <td><%= d[:pmo_p] %></td>
+      <td><%= d[:rsi_p] %></td>
+      <td><%= d[:k_p] %></td>
+      <td><%= d[:ma10_p] %></td>
+      <td><%= d[:obv_p].to_i + d[:pmo_p] + d[:rsi_p] + d[:k_p] + d[:ma10_p] %></td>
+</tr>
+<% end %>
+</table>
+<% end %>
+<%= link_to 'Edit', edit_company_path(@company) %> |
+<%= link_to 'Back', companies_path %>

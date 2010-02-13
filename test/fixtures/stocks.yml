@@ -1,0 +1,21 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  company_id: 
+  day: 2010-01-22
+  open: 9.99
+  high: 9.99
+  low: 9.99
+  close: 9.99
+  volume: 9.99
+  adjusted_close: 9.99
+
+two:
+  company_id: 
+  day: 2010-01-22
+  open: 9.99
+  high: 9.99
+  low: 9.99
+  close: 9.99
+  volume: 9.99
+  adjusted_close: 9.99

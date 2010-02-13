@@ -1,0 +1,23 @@
+<h1>Found the following company from yahoo finance</h1>
+
+<% form_for(@company, :url => { :action => "add" } ) do |f| %>
+  <%= f.error_messages %>
+  <p>
+    <%= f.label :symbol %> : <%= @company[:symbol] %>
+    <%= f.hidden_field :symbol %>
+  </p>
+  <p>
+    <%= f.label :name%> : <%= @company[:name] %> 
+    <%= f.hidden_field :name %>
+  </p>
+  <p>
+    Company stats:<br />
+    <pre><%= @stats %></pre>
+  </p>
+  <p>
+    <%= f.submit "Add" %>
+  </p>
+  
+<% end %>
+
+<%= link_to 'Back', new_company_path %>

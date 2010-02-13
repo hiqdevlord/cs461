@@ -1,0 +1,43 @@
+<p>
+  <b>Company:</b>
+  <%=h @stock.company_id %>
+</p>
+
+<p>
+  <b>Day:</b>
+  <%=h @stock.day %>
+</p>
+
+<p>
+  <b>Open:</b>
+  <%=h @stock.open %>
+</p>
+
+<p>
+  <b>High:</b>
+  <%=h @stock.high %>
+</p>
+
+<p>
+  <b>Low:</b>
+  <%=h @stock.low %>
+</p>
+
+<p>
+  <b>Close:</b>
+  <%=h @stock.close %>
+</p>
+
+<p>
+  <b>Volume:</b>
+  <%=h @stock.volume %>
+</p>
+
+<p>
+  <b>Adjusted close:</b>
+  <%=h @stock.adjusted_close %>
+</p>
+
+
+<%= link_to 'Edit', edit_stock_path(@stock) %> |
+<%= link_to 'Back', stocks_path %>

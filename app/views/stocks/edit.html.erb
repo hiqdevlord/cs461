@@ -1,0 +1,44 @@
+<h1>Editing stock</h1>
+
+<% form_for(@stock) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.label :company_id %><br />
+    <%= f.text_field :company_id %>
+  </p>
+  <p>
+    <%= f.label :day %><br />
+    <%= f.date_select :day %>
+  </p>
+  <p>
+    <%= f.label :open %><br />
+    <%= f.text_field :open %>
+  </p>
+  <p>
+    <%= f.label :high %><br />
+    <%= f.text_field :high %>
+  </p>
+  <p>
+    <%= f.label :low %><br />
+    <%= f.text_field :low %>
+  </p>
+  <p>
+    <%= f.label :close %><br />
+    <%= f.text_field :close %>
+  </p>
+  <p>
+    <%= f.label :volume %><br />
+    <%= f.text_field :volume %>
+  </p>
+  <p>
+    <%= f.label :adjusted_close %><br />
+    <%= f.text_field :adjusted_close %>
+  </p>
+  <p>
+    <%= f.submit "Update" %>
+  </p>
+<% end %>
+
+<%= link_to 'Show', @stock %> |
+<%= link_to 'Back', stocks_path %>

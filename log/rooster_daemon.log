@@ -1,0 +1,33 @@
+# Logfile created on Fri Jan 29 10:10:39 +0000 2010 by /
+*** below you find the most recent exception thrown, this will be likely (but not certainly) the exception that made the application exit abnormally ***
+#<Gem::LoadError: Could not find RubyGem activerecord-mysql-adapter (>= 0)
+>
+*** below you find all exception objects found in memory, some of them may have been thrown in your application, others may just be in memory because they are standard exceptions ***
+#<NoMemoryError: failed to allocate memory>
+#<SystemStackError: stack level too deep>
+#<fatal: exception reentered>
+#<LoadError: no such file to load -- daemons>
+#<NameError: uninitialized constant RefreshStocksTask::Chronic>
+#<NameError: uninitialized constant Chronic>
+#<NameError: uninitialized constant Chronic>
+#<NameError: uninitialized constant RefreshStocksTask::Chronic>
+#<MissingSourceFile: no such file to load -- rufus/scheduler>
+#<MissingSourceFile: no such file to load -- eventmachine>
+#<Gem::LoadError: Could not find RubyGem activerecord-mysql-adapter (>= 0)
+>
+*** below you find the most recent exception thrown, this will be likely (but not certainly) the exception that made the application exit abnormally ***
+#<Gem::LoadError: Could not find RubyGem activerecord-mysql-adapter (>= 0)
+>
+*** below you find all exception objects found in memory, some of them may have been thrown in your application, others may just be in memory because they are standard exceptions ***
+#<NoMemoryError: failed to allocate memory>
+#<SystemStackError: stack level too deep>
+#<fatal: exception reentered>
+#<LoadError: no such file to load -- daemons>
+#<NameError: uninitialized constant RefreshStocksTask::Chronic>
+#<NameError: uninitialized constant Chronic>
+#<NameError: uninitialized constant Chronic>
+#<NameError: uninitialized constant RefreshStocksTask::Chronic>
+#<MissingSourceFile: no such file to load -- rufus/scheduler>
+#<MissingSourceFile: no such file to load -- eventmachine>
+#<Gem::LoadError: Could not find RubyGem activerecord-mysql-adapter (>= 0)
+>
