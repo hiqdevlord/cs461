@@ -14,7 +14,7 @@ class Company < ActiveRecord::Base
   end
 
   def field(args)
-    days_ago = args[:days_ago] || 0
+    days_ago = (args[:days_ago] || 0).to_i
     field = args[:field].to_sym
     index = args[:index]
     if(index < days_ago)
@@ -25,7 +25,7 @@ class Company < ActiveRecord::Base
   end
 
   def running_sum(args)
-    days_ago = args[:days_ago].to_i rescue 0
+    days_ago = (args[:days_ago] || 0).to_i
     field = args[:field].to_sym
     days = args[:days].to_i
     index = args[:index]
@@ -39,15 +39,40 @@ class Company < ActiveRecord::Base
   end
 
   def avrage(args)
+    days_ago = (args[:days_ago] || 0).to_i
     running_sum(args)/args[:days].to_i
   end
 
   def min(args)
-    #TODO return the min of a given field in the given interval supporting the days_ago
+    days_ago = (args[:days_ago] || 0).to_i
+    field = args[:field].to_sym
+    days = args[:days].to_i
+    index = args[:index].to_i
+    val = @sdata[0][field]
+    if(index < days_ago)
+      return val 
+    else
+      start = (index - days_ago) < (days - 1) ? 0 : (index - days_ago) - (days - 1)
+      start.upto(index - days_ago).each do |i|
+	val = @sdata[i][field] if val < @sdta[i][field]
+      end
+    end 
   end
 
   def max(args)
-    #TODO return the max of a given field in the given interval supporting the days_ago
+    days_ago = (args[:days_ago] || 0).to_i
+    field = args[:field].to_sym
+    days = args[:days].to_i
+    index = args[:index].to_i
+    val = @sdata[0][field]
+    if(index < days_ago)
+      return val 
+    else
+      start = (index - days_ago) < (days - 1) ? 0 : (index - days_ago) - (days - 1)
+      start.upto(index - days_ago).each do |i|
+	val = @sdata[i][field] if val > @sdta[i][field]
+      end
+    end
   end
 
   def check_keys(keys)
