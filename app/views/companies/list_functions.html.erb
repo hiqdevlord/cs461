@@ -1,0 +1,36 @@
+<h1>Select from following functions</h1>
+<%# i think i need to look into form_tag %>
+<% form_tag 'exe_functions'  do -%>
+<%# form_for(@functions , :url => { :action => "add" } ) do |f| %>
+<%= hidden_field_tag 'id', @id -%>
+<% builtin_functions = @functions[0] ; user_functions = @functions[1] %>
+<p>
+  <table>
+    <tr>
+      <th>Function</th>
+      <th>Select</th>
+    </tr>
+  <!--tr><td colspan="2"><U>Builtin Functions: </U></td></tr-->
+  <%# for function in builtin_functions %>
+  <% for function in [] %>
+    <tr>
+      <td>&nbsp;&nbsp;<%= function %></td>
+      <td><input type="checkbox" id="select_function" name="functions[]" value="_<%=function%>" /></td>
+    </tr>
+  <% end %>  
+  <!--tr><td colspan="2"><U>User Functions</U></td></tr-->
+  <% for function in user_functions %>
+    <tr>
+      <td>&nbsp;&nbsp;<%= function.name %></td>
+      <td><input type="checkbox" id="select_function" name="functions[]" value="<%=function.id%>" /></td>
+    </tr>
+  <% end %> 
+  </table>
+</p>
+<p>
+  <%= submit_tag "Add" %>
+</p>
+  
+<% end -%>
+
+<%= link_to 'Back', companies_path %>

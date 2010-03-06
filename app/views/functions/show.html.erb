@@ -1,0 +1,33 @@
+<p>
+  <b>Name:</b>
+  <%=h @function.name %>
+</p>
+
+<p>
+  <b>Body:</b>
+  <%=syn @function.body %>
+</p>
+
+<p>
+  <b>Description</b>
+  <%=h @function.description %>
+</p>
+
+<p>
+  <b>Type:</b>
+  <%=h @function.type %>
+</p>
+
+<p>
+  <b>Visible:</b>
+  <%=h @function.visible %>
+</p>
+
+<p>
+  <b>Editable:</b>
+  <%=h @function.editable %>
+</p>
+
+
+<%= link_to 'Edit', edit_function_path(@function) %> |
+<%= link_to 'Back', functions_path %>

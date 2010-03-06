@@ -1,8 +1,11 @@
 class Company < ActiveRecord::Base
   has_many :stocks
-  validates_uniqueness_of :symbol
-  attr_accessor :sdata, :formula, :method_name, :m_keys
+#  has_many :functions
 
+  validates_uniqueness_of :symbol
+  attr_accessor :sdata, :formula, :method_name, :m_keys #TODO cleanup
+
+  USER_FUNCTIONS = %w(open high low close volume field running_sum avrage min max save_results).sort
   def load_sdata 
     if !@sdata or @sdata.empty?
       @sdata = Array.new 
@@ -48,15 +51,14 @@ class Company < ActiveRecord::Base
     field = args[:field].to_sym
     days = args[:days].to_i
     index = args[:index].to_i
-    val = @sdata[0][field]
-    if(index < days_ago)
-      return val 
-    else
+    val = @sdata[index][field]
+    unless(index < days_ago)
       start = (index - days_ago) < (days - 1) ? 0 : (index - days_ago) - (days - 1)
       start.upto(index - days_ago).each do |i|
-	val = @sdata[i][field] if val < @sdta[i][field]
+	val = @sdata[i][field] if @sdata[i][field] < val
       end
     end 
+    return val
   end
 
   def max(args)
@@ -64,15 +66,66 @@ class Company < ActiveRecord::Base
     field = args[:field].to_sym
     days = args[:days].to_i
     index = args[:index].to_i
-    val = @sdata[0][field]
-    if(index < days_ago)
-      return val 
-    else
+    val = @sdata[index][field]
+    unless (index < days_ago)
       start = (index - days_ago) < (days - 1) ? 0 : (index - days_ago) - (days - 1)
       start.upto(index - days_ago).each do |i|
-	val = @sdata[i][field] if val > @sdta[i][field]
+	val = @sdata[i][field] if @sdata[i][field] > val
       end
     end
+    return val
+  end 
+
+  def save_results(args)
+    index = args[:index].to_i
+    key_name = args[:key_name].to_sym
+    value = args[:value]
+    @sdata[index][key_name] = value
+  end 
+
+  def evaluate_function(args)
+    index = args[:index].to_i
+    key_name = args[:key_name].to_sym
+    new_key_name = "#{args[:key_name]}-eval".to_sym
+    prediction = "" 
+    size = @sdata.size
+    if(index + 1 < size)
+      if @sdata[index][key_name] == 1
+        if(@sdata[index][:close] < @sdata[index + 1][:close])
+          prediction = "Right"
+        else
+          prediction = "Wrong"
+        end
+      elsif @sdata[index][key_name] == -1
+        if(@sdata[index][:close] > @sdata[index + 1][:close])
+          prediction = "Right"
+        else
+          prediction = "Wrong"
+        end
+      else
+        prediction = ""
+      end
+    end
+    save_results(:index => index , :key_name => new_key_name, :value => prediction)
+  end
+  
+  def self.load_functions
+    functions.each do |f|
+      functions_str = "def #{f.name}\nload_sdata\n@sdata.each_with_index do |s,i|\n #{f.body}\nend\nend"
+      self.class_eval(functions_str)
+    end   
+  end
+  
+  def self.functions
+    Function.find_by_sql("SELECT * FROM `functions` WHERE editable = true order by name")
+  end 
+
+  def self.list_user_functions
+    list = []
+    list << USER_FUNCTIONS
+    #functions.each{|f| list << f.name}   
+    list << functions
+    list
   end
 
   def check_keys(keys)
@@ -125,28 +178,6 @@ class Company < ActiveRecord::Base
     self.class_eval @formula
   end
 
-  def save_results(args)
-    index = args[:index].to_i
-    key_name = args[:key_name].to_sym
-    value = args[:value]
-    @sdata[index][key_name] = value
-  end
-
-  def pp1
-    load_sdata
-    @sdata.each_with_index do |s,i|
-      ris = field(:field => 'close', :days_ago => 10, :index => i) - field(:field => 'close', :index => i)
-      val = 0
-      if(ris > 0)
-	val = 1
-      elsif(ris < 0)
-	val = -1
-      else
-	val = 0
-      end
-      save_results(:index => i, :key_name => 'pp1', :value => val) 
-    end
-  end
 
   def prediction1
     @sdata = Array.new 
@@ -252,6 +283,8 @@ class Company < ActiveRecord::Base
       10 + x
     end
   end
+
+
 private
    def this_method
      caller[0] =~ /`([^']*)'/ and $1

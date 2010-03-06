@@ -1,7 +1,9 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :functions
+
   map.resources :stocks
 
-  map.resources :companies, :collection => {:find => :get, :add => :post}
+  map.resources :companies, :collection => {:find => :get, :add => :post, :list_functions => :get, :exe_functions => [:get,:post]}
 
   # The priority is based upon order of creation: first created -> highest priority.
 

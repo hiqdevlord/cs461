@@ -1,4 +1,7 @@
 require 'yahoofinance'
+require 'csv'
+require 'fastercsv'
+require 'gchart'
 
 class CompaniesController < ApplicationController
   # GET /companies
@@ -53,7 +56,6 @@ class CompaniesController < ApplicationController
 	  format.html { redirect_to(params.merge!(:action => 'find'))}
       end
     end
-#render :text => 'hi'
 #    respond_to do |format|
 #      if @company.save
 #        flash[:notice] = 'Company was successfully created.'
@@ -136,4 +138,83 @@ class CompaniesController < ApplicationController
       end
     end
   end
+
+  def list_functions 
+    @id = params[:id]
+    @functions = Company.list_user_functions
+  end
+
+  def exe_functions
+    @id = params[:id]
+    if params[:functions] and params[:functions].class == Array
+      @functions = params[:functions]
+    elsif  params[:functions] and params[:functions].class == String
+      @functions = params[:functions].split(',')
+    end
+    @columns = []
+    if @id and !@id.empty? and @id.to_i > 0
+      Company.load_functions
+      @company = Company.find(@id)
+      @functions.each do |f|
+	fun = Function.find(f.to_i)
+	@columns << fun.name	
+	@columns << "#{fun.name}-eval"
+	cmd = "@company.#{fun.name}"
+	begin
+	  eval(cmd)
+	rescue Exception => e
+	  msg = "<h1>Bad Function! Bad Function!</h1>"
+	  msg = msg + e.message
+	end
+      end
+      @data = @company.sdata
+      respond_to do |format|
+	format.html
+	format.csv do  
+	  header = %w( Day Open High Low Volume Close) 
+	  keys = [:day,:open,:high,:low,:volume,:close]
+	  @columns.each do |c|
+	    if(@data[0].keys.include?(c.to_sym))
+	      header << c.capitalize 
+	      keys << c.to_sym
+	    end
+	  end
+	  export_csv(@data ,header,keys)
+	  #render :csv => '1,2,3'
+	end
+      end
+    else
+      render :text => "<h1>Bad Data</h1>"
+    end
+  end
+
+private
+    def export_csv(data,header,keys)
+      stream_csv do |csv|
+	csv << header if header.size > 0
+	data.each do |d|
+	  csv << keys.map {|k| d[k] }
+	end
+      end
+    end
+
+    def stream_csv
+      filename = params[:action] + ".csv"
+      #this is required if you want this to work with IE        
+      if request.env['HTTP_USER_AGENT'] =~ /msie/i
+        headers['Pragma'] = 'public'
+        headers["Content-type"] = "text/plain"
+        headers['Cache-Control'] = 'no-cache, must-revalidate, post-check=0, pre-check=0'
+        headers['Content-Disposition'] = "attachment; filename=\"#{filename}\""
+        headers['Expires'] = "0"
+      else
+        headers["Content-Type"] ||= 'text/csv'
+        headers["Content-Disposition"] = "attachment; filename=\"#{filename}\""
+      end
+
+      render :text => Proc.new { |response, output|
+        csv = FasterCSV.new(output, :row_sep => "\r\n")
+        yield csv
+      }
+    end
 end

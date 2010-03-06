@@ -10,6 +10,8 @@
   <tr>
     <td><%=h company.name %></td>
     <td><%=h company.symbol %></td>
+    <td><a href="/companies/list_functions?id=<%=company.id%>">Select Functions</a></td>
+    <td><%# link_to 'list_functions', list_functions_companies_path %></td>
     <td><%= link_to 'Show', company %></td>
     <td><%= link_to 'Edit', edit_company_path(company) %></td>
     <td><%= link_to 'Destroy', company, :confirm => 'Are you sure?', :method => :delete %></td>
