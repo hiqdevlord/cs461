@@ -121,7 +121,7 @@ class CompaniesController < ApplicationController
     @company = Company.new(params[:company])
     respond_to do |format|
       if @company.save
-	YahooFinance::get_HistoricalQuotes_days( params[:company][:symbol] , (Date.today - Date.parse('2009-01-01')).to_i ) do |hq|
+	YahooFinance::get_HistoricalQuotes_days( params[:company][:symbol] , (Date.today - Date.parse('2005-01-01')).to_i ) do |hq|
 	 # @company.stocks = [Stock.new(:day => hq.date, :open => hq.open, :high => hq.high, :low => hq.low, :close => hq.close, 
 	#			    :volume => hq.volume, :adjusted_close => hq.adjClose)]
 	  stock = Stock.new(:company => @company, :day => hq.date, :open => hq.open, :high => hq.high, :low => hq.low, :close => hq.close, 
@@ -158,7 +158,7 @@ class CompaniesController < ApplicationController
       @functions.each do |f|
 	fun = Function.find(f.to_i)
 	@columns << fun.name	
-	@columns << "#{fun.name}-eval"
+	#@columns << "#{fun.name}-eval"
 	cmd = "@company.#{fun.name}"
 	begin
 	  eval(cmd)
@@ -168,6 +168,8 @@ class CompaniesController < ApplicationController
 	end
       end
       @data = @company.sdata
+#puts y @data
+      @data_in_google = @company.to_google_format(@columns)
       respond_to do |format|
 	format.html
 	format.csv do  
@@ -180,7 +182,6 @@ class CompaniesController < ApplicationController
 	    end
 	  end
 	  export_csv(@data ,header,keys)
-	  #render :csv => '1,2,3'
 	end
       end
     else

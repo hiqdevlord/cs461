@@ -27,6 +27,22 @@ class Company < ActiveRecord::Base
     end
   end
 
+  def close(args)
+    field(args.merge(:field => 'close'))
+  end
+  def open(args)
+    field(args.merge(:field => 'open'))
+  end
+  def low(args)
+    field(args.merge(:field => 'low'))
+  end
+  def high(args)
+    field(args.merge(:field => 'high'))
+  end
+  def volume(args)
+    field(args.merge(:field => 'volume'))
+  end
+
   def running_sum(args)
     days_ago = (args[:days_ago] || 0).to_i
     field = args[:field].to_sym
@@ -44,6 +60,62 @@ class Company < ActiveRecord::Base
   def avrage(args)
     days_ago = (args[:days_ago] || 0).to_i
     running_sum(args)/args[:days].to_i
+  end
+
+  def ema(args)
+    # x day ema 
+    #key_name = "_x_ema" 
+    index = args[:index].to_i
+    days = args[:days].to_i
+    key_name = "_#{days}_ema".to_sym
+    val = 0.0
+    if @sdata[index][key_name]
+      return @sdata[index][key_name]
+    else
+      if (index + 1) < days
+      elsif (index + 1) == days
+	val = avrage(:field => 'close', :days => days, :index => index) 
+      else
+	smoothing_constant = 2/(days + 1) 
+	val = smoothing_constant * (close(:index => index) - field(:index => index - 1, :field => key_name)) 
+		      + field(:index => index - 1, :field=> key_name)	
+      end
+      save_results(:value => val , :index => index, :key_name => key_name)
+    end
+    return val
+  end
+
+  def evaluate_function(args)
+    index = args[:index].to_i
+    key_name = args[:key_name].to_sym
+    value = args[:value]
+    day_ago_index = index - 1
+    result = 1.0
+    @sdata[index][key_name] = Hash.new
+    @sdata[index][key_name][:pct_invested] = value 
+    unless(day_ago_index < 0)
+      result = @sdata[day_ago_index][key_name][:result] * day_factor(:index => index, :key_name => key_name)
+    end
+    @sdata[index][key_name][:result] = result 
+    return result
+  end
+
+  def pct_change(args)
+    index = args[:index].to_i 
+    day_ago_index = index - 1
+    return 0 if (day_ago_index < 0)
+    return (close(:index => index) - close(:index => day_ago_index))/close(:index => day_ago_index)
+  end
+
+  def day_factor(args)
+    key_name = args[:key_name].to_sym 
+    index = args[:index].to_i
+    day_ago_index = index - 1
+    ris = 1 + (@sdata[day_ago_index][key_name][:pct_invested] * pct_change(:index => index)) 
+    #puts "1 + #{@sdata[day_ago_index][key_name][:pct_invested]} * #{pct_change(:index => index)} = #{ris}"
+    puts ris
+    #return 1 + (@sdata[day_ago_index][key_name][:pct_invested] * pct_change(:index => index)) 
+    return ris
   end
 
   def min(args)
@@ -83,31 +155,31 @@ class Company < ActiveRecord::Base
     @sdata[index][key_name] = value
   end 
 
-  def evaluate_function(args)
-    index = args[:index].to_i
-    key_name = args[:key_name].to_sym
-    new_key_name = "#{args[:key_name]}-eval".to_sym
-    prediction = "" 
-    size = @sdata.size
-    if(index + 1 < size)
-      if @sdata[index][key_name] == 1
-        if(@sdata[index][:close] < @sdata[index + 1][:close])
-          prediction = "Right"
-        else
-          prediction = "Wrong"
-        end
-      elsif @sdata[index][key_name] == -1
-        if(@sdata[index][:close] > @sdata[index + 1][:close])
-          prediction = "Right"
-        else
-          prediction = "Wrong"
-        end
-      else
-        prediction = ""
-      end
-    end
-    save_results(:index => index , :key_name => new_key_name, :value => prediction)
-  end
+ #def evaluate_function(args)
+ #  index = args[:index].to_i
+ #  key_name = args[:key_name].to_sym
+ #  new_key_name = "#{args[:key_name]}-eval".to_sym
+ #  prediction = "" 
+ #  size = @sdata.size
+ #  if(index + 1 < size)
+ #    if @sdata[index][key_name] == 1
+ #      if(@sdata[index][:close] < @sdata[index + 1][:close])
+ #        prediction = "Right"
+ #      else
+ #        prediction = "Wrong"
+ #      end
+ #    elsif @sdata[index][key_name] == -1
+ #      if(@sdata[index][:close] > @sdata[index + 1][:close])
+ #        prediction = "Right"
+ #      else
+ #        prediction = "Wrong"
+ #      end
+ #    else
+ #      prediction = ""
+ #    end
+ #  end
+ #  save_results(:index => index , :key_name => new_key_name, :value => prediction)
+ #end
   
   def self.load_functions
     functions.each do |f|
@@ -119,6 +191,22 @@ class Company < ActiveRecord::Base
   def self.functions
     Function.find_by_sql("SELECT * FROM `functions` WHERE editable = true order by name")
   end 
+
+  def to_google_format(keys=nil) 
+    data_google_format = Hash.new
+    @sdata.each do |r|
+      data_google_format[r[:day]] = Hash.new 
+      data_google_format[r[:day]][:close] = r[:close] 
+      keys.each do |k|
+	if(r[k.to_sym].class == Hash)
+	  data_google_format[r[:day]][k.to_sym] = r[k.to_sym][:result] 
+	else
+	  data_google_format[r[:day]][k.to_sym] = r[k.to_sym] 
+	end
+      end
+    end
+    data_google_format
+  end
 
   def self.list_user_functions
     list = []
@@ -284,6 +372,32 @@ class Company < ActiveRecord::Base
     end
   end
 
+
+  def ppcc
+    load_sdata
+    @sdata.each_with_index do |s,i|
+     #res = max(:index => i, :days => 10,:field => "close") - field(:field => 'close', :index => i)
+     #     val = 0
+     #     if res > 0
+     #         val = 1	
+     #     elsif res < 0
+     #         val = -1
+     #     else
+     #         val = 0
+     #end
+     #evaluate_function(:index => i, :key_name => 'ppcc', :value => val)
+#res = close(:days_ago => 1) - close(:index => i)
+res = ema(:index => i, :days => 40) - close(:index => i)
+val = 0
+if res > 0
+   val = 1
+else
+   val = -1
+end
+
+evaluate_function(:index => i, :key_name => 'pp6', :value => val)
+    end
+  end
 
 private
    def this_method

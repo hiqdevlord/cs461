@@ -1,3 +1,5 @@
+require 'annotatedtimeline-for-rails'
+
 class StocksController < ApplicationController
   # GET /stocks
   # GET /stocks.xml

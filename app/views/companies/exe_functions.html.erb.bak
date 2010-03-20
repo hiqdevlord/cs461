@@ -17,20 +17,20 @@
 
 <br />
 <% if @data and ! @data.empty? %>
-<%#@open = @data.map{|d| d[:open]} %>
-<%#@high = @data.map{|d| d[:high]} %>
-<%#@low= @data.map{|d| d[:low]} %>
-<%#@volume= @data.map{|d| Math.log10(d[:volume]) * 5} %>
-<%#@close = @data.map{|d| d[:close]} %>
-<%#@gchart_data = [@open, @high, @low, @volume, @close] %>
-<%#@gchart_legend = ['Open', 'High', 'Low','Volume','Close'] %>
-<%#@columns.each do |c| %>
-  <%#if @data[0].keys.include?(c.to_sym) and c.to_s !~ /\d+-eval/ %>
-    <%#@gchart_data <<  @data.map{|d| d[c.to_sym] + 1}  %> 
-    <%#@gchart_legend << c.capitalize %>
-  <%#end %>
-<%# end %>
-<%#= image_tag Gchart.line(:data => @gchart_data,
+<% @open = @data.map{|d| d[:open]} %>
+<% @high = @data.map{|d| d[:high]} %>
+<% @low= @data.map{|d| d[:low]} %>
+<% @volume= @data.map{|d| Math.log10(d[:volume]) * 5} %>
+<% @close = @data.map{|d| d[:close]} %>
+<% @gchart_data = [@open, @high, @low, @volume, @close] %>
+<% @gchart_legend = ['Open', 'High', 'Low','Volume','Close'] %>
+<% @columns.each do |c| %>
+  <% if @data[0].keys.include?(c.to_sym) and c.to_s !~ /\d+-eval/ %>
+    <% @gchart_data <<  @data.map{|d| d[c.to_sym] + 1}  %> 
+    <% @gchart_legend << c.capitalize %>
+  <% end %>
+<% end %>
+<%= image_tag Gchart.line(:data => @gchart_data,
   :size => '1000x200',
   :line_colors => ['ffac2f', 'ffdeae','B44D00','702F0F','851600', '3377ff','6E6215'],
   :axis_with_labels => 'day,y',

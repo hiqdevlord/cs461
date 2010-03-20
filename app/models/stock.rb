@@ -4,10 +4,10 @@ class Stock < ActiveRecord::Base
   def self.refresh_stock
     Company.find(:all).each do |c|
       max_day = self.maximum('day', :conditions => "company_id = #{c.id}")
-      if(max_day and max_day > Date.parse('2009-01-01'))
+      if(max_day and max_day > Date.parse('2005-01-01'))
 	self.load_historic_data(c, c.symbol, max_day + 1, Date.today)
       else
-	self.load_historic_data(c, c.symbol, Date.parse('2009-01-01'), Date.today)
+	self.load_historic_data(c, c.symbol, Date.parse('2005-01-01'), Date.today)
       end
       self.load_day_10_sum(c.id)
     end
